@@ -106,5 +106,8 @@
     <orderEntry type="library" name="sockjs-client" level="application" />
     <orderEntry type="library" name="stomp.js" level="application" />
     <orderEntry type="library" name="jquery-3.6.4" level="application" />
+    <orderEntry type="library" name="chart.js" level="application" />
+    <orderEntry type="library" name="Chart.js" level="application" />
+    <orderEntry type="library" name="canvasjs" level="application" />
   </component>
 </module>

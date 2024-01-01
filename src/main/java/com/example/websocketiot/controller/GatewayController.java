@@ -1,25 +1,24 @@
 package com.example.websocketiot.controller;
 
-import com.example.websocketiot.model.Temperature;
+import com.example.websocketiot.model.Notify;
+import com.example.websocketiot.model.SensorMessage;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.stereotype.Controller;
 
+@Controller
 public class GatewayController {
-
-    @MessageMapping("/sensor")
+    @MessageMapping("/sensor.sendData")
     @SendTo("/topic/temperatures")
-    public Temperature handleSensorData(Temperature sensorData) {
-        // Process incoming sensor data
-        System.out.println("Received sensor data: " + sensorData);
-
-        // Example logic: If temperature is greater than 35, send a notification
-        if (sensorData.getTemp() > 35) {
-            sendNotification("Turn on air conditioning");
-        }
-        return sensorData;
+    public SensorMessage send(@Payload SensorMessage sensorMessage ) {
+        return sensorMessage;
     }
 
-    private void sendNotification(String message) {
-        System.out.println("Sending notification: " + message);
+    @MessageMapping("/sensor.sendNotify")
+    @SendTo("/topic/notify")
+    public Notify send(@Payload Notify notify) {
+        return notify;
     }
+
 }

@@ -1,47 +1,75 @@
 var sensorData = {
-    id: null,
-    time: null,
+    sensorName: null,
     temp: null,
+    time: null,
 }
-
 var stompClient = null;
 
-function updateSensorData(id, temp) {
-    sensorData.id = id;
-    sensorData.time = Date.now();
+function updateSensorData(sensorName, temp) {
+    sensorData.sensorName = sensorName;
+    sensorData.time = new Date().toLocaleString();;
     sensorData.temp = temp;
 }
 
-function populateTemp(temp) {
-    var x = document.getElementById("fetched-temp");
-    x.innerHTML = "Fetched temperature is: " + temp;
-}
 
-function fetchTemp(sensorID) {
-    var minTemperature = 36;
+function fetchTemp() {
+    const sensorName = document.getElementById("sensorName").value;
+    displaySensorName(sensorName);
+    var minTemperature = 20;
     var maxTemperature = 40;
-
-    // Generate a random temperature between 30 and 40
     var randomTemperature = Math.random() * (maxTemperature - minTemperature) + minTemperature;
-
-    // Round the temperature to two decimal places
     randomTemperature = Math.round(randomTemperature * 100) / 100;
-    populateTemp(randomTemperature);
-    updateSensorData(sensorID, randomTemperature);
+    updateSensorData(sensorName, randomTemperature);
+    displayTemp(sensorData);
 }
 
-function sendData(){
+
+function connect() {
     var socket = new SockJS('/sensor');
     stompClient = Stomp.over(socket);
-    console.log("Socket connected!");
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-         stompClient.send('/app/sensor', {}, JSON.stringify(sensorData));
-         console.log('Sent sensor data: ' + JSON.stringify(sensorData));
-
-         stompClient.subscribe('/topic/messages', function(message) {
-         // TODO: Get message from gateway
-            console.log("MESS: ", message, message.body);
-         });
+        stompClient.subscribe('/topic/notify', function (notification) {
+            var body = JSON.parse(notification.body);
+            if(body.sensorName === sensorData.sensorName) {
+                displayNotification(body.sensorName + " :  "+ body.response);
+            }
+        });
     });
+    setInterval(updateAndSendData, 10000);
 }
+
+function sendData() {
+    stompClient.send('/app/sensor.sendData', {}, JSON.stringify(sensorData));
+}
+
+function updateAndSendData() {
+    fetchTemp();
+    sendData();
+}
+
+function displayNotification(message) {
+    var notificationsDiv = document.getElementById("notifications");
+
+    // Tạo một phần tử p mới để hiển thị thông báo
+    var newNotification = document.createElement("p");
+    newNotification.textContent = message;
+
+    // Thêm phần tử p vào phần tử div chứa thông báo
+    notificationsDiv.appendChild(newNotification);
+}
+
+function displayTemp(sensorData) {
+    var tempDiv = document.getElementById("temp");
+    var newTemp = document.createElement('p');
+
+    newTemp.textContent = sensorData.time + " :   " + sensorData.temp + '°C' ;
+    tempDiv.appendChild(newTemp);
+}
+
+function displaySensorName(sensorName) {
+    var sensorNameDiv = document.getElementById("sensorNameDisplay");
+    sensorNameDiv.textContent =  sensorName;
+}
+
+

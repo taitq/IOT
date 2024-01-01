@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor</title>
+    <script src="webjars/jquery/dist/jquery.min.js"></script>
+    <script src="webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="webjars/stomp-websocket/stomp.min.js"></script>
+</head>
+<body>
+    <h1 id="sensorNameDisplay"> Sensor </h1>
+
+    <form id="inputForm">
+        <label for="sensorName">Enter Sensor Name:</label>
+        <input type="text" id="sensorName" placeholder="Sensor Name">
+        <button type="button" onclick="connect()">Connect</button>
+    </form>
+
+    <div>
+        <!-- Display area for fetched temperature -->
+        <div id="temp"  style="float: left; width: 50%;">
+            <b style="font-size: 18px;">Thông báo gửi đi</b>
+        </div>
+
+        <!-- Display area for notifications -->
+        <div id="notifications" style="float: right; width: 50%;">
+            <b style="font-size: 18px;"> Phản hồi từ Gateway</b>
+        </div>
+    </div>
+</body>
+<script src="sensor.js"></script>
+</html>
