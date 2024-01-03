@@ -5,13 +5,15 @@ import com.example.websocketiot.model.SensorMessage;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
 @Controller
 public class GatewayController {
     @MessageMapping("/sensor.sendData")
     @SendTo("/topic/temperatures")
-    public SensorMessage send(@Payload SensorMessage sensorMessage ) {
+    public SensorMessage send(@Payload SensorMessage sensorMessage,  SimpMessageHeaderAccessor headerAccessor ) {
+        headerAccessor.getSessionAttributes().put("sensorName", sensorMessage.getSensorName());
         return sensorMessage;
     }
 

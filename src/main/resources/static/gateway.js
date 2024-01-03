@@ -1,7 +1,9 @@
 var stompClient = null;
 
 var sensorDataList = {};
-
+var setSensor = new Set();
+var listDisconnectSensor = [];
+var listConnectSensor=[];
 var chart; // Đối tượng đồ thị
 
 // Hàm khởi tạo đồ thị
@@ -67,6 +69,16 @@ function updateChart() {
         if (sensorDataList.hasOwnProperty(sensorName)) {
             // Kiểm tra xem chuỗi dữ liệu của sensor đã được thêm vào đồ thị hay chưa
             var sensorDataExists = false;
+            // Nếu chuỗi dữ liệu của sensor chưa tồn tại, thêm vào đồ thị
+            if (!sensorDataExists) {
+                chart.options.data.push({
+                    type: "spline",
+                    showInLegend: true,
+                    name: sensorName,
+                    dataPoints: [],
+                    line: {connectNullData: true}
+                });
+            }
             for (var i = 0; i < chart.options.data.length; i++) {
                 if (chart.options.data[i].name === sensorName) {
                     sensorDataExists = true;
@@ -88,16 +100,7 @@ function updateChart() {
                 }
             }
 
-            // Nếu chuỗi dữ liệu của sensor chưa tồn tại, thêm vào đồ thị
-            if (!sensorDataExists) {
-                chart.options.data.push({
-                    type: "spline",
-                    showInLegend: true,
-                    name: sensorName,
-                    dataPoints: [],
-                    line: {connectNullData: true}
-                });
-            }
+
         }
     }
 
@@ -116,37 +119,53 @@ function connect() {
             var sensorName = body.sensorName;
             var temp = body.temp;
             var time = body.time;
+            // If a temperature disconnect
+            if(temp === 0 && time === "null") {
+                var parts = sensorName.split(" ");
+                var ssName = parts[0];
+                setSensor.delete(ssName);
+                listDisconnectSensor.push(sensorName);
+                updateSensorList();
+            }
+            else {
+                if(!setSensor.has(sensorName)) {
+                    setSensor.add(sensorName);
+                    var info = sensorName + " connected at " + time;
+                    listConnectSensor.push(info);
+                }
+                updateSensorList();
+                var sensorData = {
+                    time: time,
+                    temp: temp
+                }
 
-            var sensorData = {
-                time: time,
-                temp: temp
+                if (sensorName in sensorDataList) {
+                    sensorDataList[sensorName].push(sensorData);
+
+                } else {
+                    var sensorNameList = [];
+                    sensorNameList.push(sensorData);
+                    sensorDataList[sensorName] = sensorNameList;
+                }
+
+                // Nếu đồ thị chưa được khởi tạo, thì khởi tạo
+                if (!chart) {
+                    initializeChart();
+                }
+
+                // Cập nhật đồ thị sau khi có dữ liệu mới
+                updateChart();
+
+                var notification = {
+                    sensorName: sensorName,
+                    response: "At " + sensorData.time + " temperature: " + sensorData.temp + "> 35°C, " +
+                        " Turn on air condition"
+                }
+                if (Number(body.temp > 35)) {
+                    sendNotify(notification)
+                }
             }
 
-            if (sensorName in sensorDataList) {
-                sensorDataList[sensorName].push(sensorData);
-
-            } else {
-                var sensorNameList = [];
-                sensorNameList.push(sensorData);
-                sensorDataList[sensorName] = sensorNameList;
-            }
-
-            // Nếu đồ thị chưa được khởi tạo, thì khởi tạo
-            if (!chart) {
-                initializeChart();
-            }
-
-            // Cập nhật đồ thị sau khi có dữ liệu mới
-            updateChart();
-
-            var notification = {
-                sensorName: sensorName,
-                response: "At " + sensorData.time + " temperature: " + sensorData.temp + "> 35°C, " +
-                    " Turn on air condition"
-            }
-            if (Number(body.temp > 35)) {
-                sendNotify(notification)
-            }
         });
     });
 }
@@ -163,4 +182,44 @@ connect();
 function toggleDataSeries(e) {
     e.dataSeries.visible = !(typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible);
     chart.render();
+}
+
+
+// Hàm cập nhật danh sách sensor
+function updateSensorList() {
+
+    // Dang Ket noi
+    var sensorConnectingListItems = document.getElementById('sensorConnectingListItems');
+    sensorConnectingListItems.innerHTML = ''; // Xóa danh sách hiện tại
+
+    // Duyệt qua mỗi sensor trong set và thêm vào danh sách
+    setSensor.forEach(function(sensor) {
+        var listItem = document.createElement('li');
+        listItem.textContent = sensor;
+        sensorConnectingListItems.appendChild(listItem);
+    });
+
+
+    // da ket noi
+    var sensorConnectedListItems = document.getElementById('sensorConnectedListItems');
+    sensorConnectedListItems.innerHTML = ''; // Xóa danh sách hiện tại
+
+    // Duyệt qua mỗi sensor trong set và thêm vào danh sách
+    listConnectSensor.forEach(function(sensor) {
+        var listItem = document.createElement('li');
+        listItem.textContent = sensor;
+        sensorConnectedListItems.appendChild(listItem);
+    });
+
+
+    // ngat ket noi
+    var sensorDisconnectListItems = document.getElementById('sensorDisconnectListItems');
+    sensorDisconnectListItems.innerHTML = ''; // Xóa danh sách hiện tại
+
+    // Duyệt qua mỗi sensor trong set và thêm vào danh sách
+    listDisconnectSensor.forEach(function(sensor) {
+        var listItem = document.createElement('li');
+        listItem.textContent = sensor;
+        sensorDisconnectListItems.appendChild(listItem);
+    });
 }

@@ -7,7 +7,7 @@ var stompClient = null;
 
 function updateSensorData(sensorName, temp) {
     sensorData.sensorName = sensorName;
-    sensorData.time = new Date().toLocaleString();;
+    sensorData.time = new Date().toLocaleString();
     sensorData.temp = temp;
 }
 
@@ -28,6 +28,7 @@ function connect() {
     var socket = new SockJS('/sensor');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
+        updateAndSendData();
         console.log('Connected: ' + frame);
         stompClient.subscribe('/topic/notify', function (notification) {
             var body = JSON.parse(notification.body);
@@ -37,6 +38,7 @@ function connect() {
         });
     });
     setInterval(updateAndSendData, 10000);
+
 }
 
 function sendData() {

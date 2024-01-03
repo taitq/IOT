@@ -7,13 +7,30 @@
     <script src="webjars/sockjs-client/sockjs.min.js"></script>
     <script src="webjars/stomp-websocket/stomp.min.js"></script>
 
-    <script type = "text/javascript" src = "https://cdn.canvasjs.com/canvasjs.min.js" ></script>
+    <script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
     <script src="gateway.js"></script>
     <title>Gateway</title>
 </head>
 <body>
 <b style="font-size: 18px;"> Thông tin Sensor </b>
-<div id = "chartContainer" style = "height: 300px; width: 100%;">
-</div>
+
+<div style="height: 200px; margin-top: 5px;">
+    <div style="float: left; width: 30%">
+        <b style="font-size: 18px;">Danh sách sensor đang kết nối:</b>
+        <ul id="sensorConnectingListItems" ></ul>
+    </div>
+
+    <div style="float: right; width: 30%">
+        <b style="font-size: 18px; "> Danh sách đã kết nối: </b>
+        <ul id="sensorConnectedListItems"></ul>
+    </div>
+
+    <div style="float: right; width: 30%">
+        <b style="font-size: 18px; "> Danh sách Sensor đã ngắt kết nối: </b>
+        <ul id="sensorDisconnectListItems"></ul>
+    </div>
+ </div>
+
+<div id="chartContainer" style="height:300px; width: 100%; margin-top: 5px;"></div>
 </body>
 </html>
