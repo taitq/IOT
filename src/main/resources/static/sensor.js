@@ -12,7 +12,6 @@ function updateSensorData(sensorName, temp) {
     sensorData.temp = temp;
 }
 
-
 function fetchTemp(id) {
     testName = document.getElementById("sensorName").value;
     const sensorName = testName + id;
@@ -44,9 +43,8 @@ function connectMultipleTimes() {
             });
             stompClients.push(stompClient);
         }, i * 100); // Tạo một khoảng thời gian 100ms giữa mỗi kết nối
-        
-        setInterval(hanldeSendData, 10000);
     }
+    setInterval(hanldeSendData, 10000);
 }
 
 function hanldeSendData() {
@@ -58,8 +56,9 @@ function hanldeSendData() {
 
 function connect() {
     var socket = new SockJS('/sensor');
-    stompClient = Stomp.over(socket);
+    var stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
+        if (stompClient != null) {
         updateAndSendData(stompClient, 0);
         console.log('Connected: ' + frame);
         stompClient.subscribe('/topic/notify', function (notification) {
@@ -68,8 +67,10 @@ function connect() {
                 displayNotification(body.sensorName + " :  "+ body.response);
             }
         });
-    });
-    setInterval(updateAndSendData(stompClient, 0), 10000);
+        stompClients.push(stompClient);
+    }});
+    
+    setInterval(hanldeSendData, 10000);
 
 }
 
