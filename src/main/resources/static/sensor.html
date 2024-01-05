@@ -14,7 +14,17 @@
     <form id="inputForm" style="margin-top: 10px;">
         <label for="sensorName">Enter Sensor Name:</label>
         <input type="text" id="sensorName" placeholder="Sensor Name">
-        <button type="button" onclick="connect()">Connect</button>
+        <button type="button" onclick="connectMultipleTimes(10)">Connect</button>
+    </form>
+
+    <form id="inputForm" style="margin-top: 10px;">
+        <label for="sensorName">Enter Sensor Name For Testing:</label>
+        <input type="text" id="sensorName" placeholder="Sensor Name">
+    
+        <label for="quantity">Enter Quantity:</label>
+        <input type="number" id="quantity" placeholder="Quantity" min="1">
+    
+        <button type="button" onclick="connectMultipleTimes()">Connect</button>
     </form>
 
     <div style="margin-top: 10px;">
